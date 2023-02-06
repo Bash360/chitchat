@@ -14,7 +14,7 @@ Mark Bashir
 
 # GITHUB REPO
 
-- <>
+- <https://github.com/Bash360/chitchat>
 
 # Documentation
 - <>
