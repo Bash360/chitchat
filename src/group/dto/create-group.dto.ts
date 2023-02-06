@@ -1,6 +1,6 @@
 import { Optional } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, MaxLength } from 'class-validator';
+import { IsString, MaxLength, IsOptional } from 'class-validator';
 
 export class CreateGroupDTO {
   @ApiProperty()
@@ -14,6 +14,6 @@ export class CreateGroupDTO {
 
   @ApiProperty()
   @IsString()
-  @Optional()
+  @IsOptional()
   avatar: string;
 }

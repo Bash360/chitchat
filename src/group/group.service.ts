@@ -37,7 +37,6 @@ export class GroupService {
     createGroup: CreateGroupDTO,
   ): Promise<Group> {
     const user = await this.userService.findOne(userId);
-
     const group = await new this.groupModel({
       ...createGroup,
       createdBy: user._id,
