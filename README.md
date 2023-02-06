@@ -35,7 +35,7 @@ Mark Bashir
 # HOW TO Run locally
 
 - open your terminal or cmd
-- run git clone <https://github.com/wolfma360/Online-Transcript-Solution.git>
+- run git clone <https://github.com/Bash360/chitchat.git>
 - run npm install to install dependencies
 - run docker compose up -d  (install docker if not already installed)
 - run npm run start to start application it listens on port 3000
