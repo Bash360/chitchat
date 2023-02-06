@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './user/user.module';
-import { UserControllerController } from './user.controller/user.controller.controller';
+
 
 @Module({
   imports: [
@@ -10,7 +10,7 @@ import { UserControllerController } from './user.controller/user.controller.cont
     MongooseModule.forRoot(process.env.MONGO_URL),
     UserModule,
   ],
-  controllers: [UserControllerController],
+  controllers: [],
   providers: [],
 })
 export class AppModule {}
