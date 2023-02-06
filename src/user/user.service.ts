@@ -20,12 +20,18 @@ export class UserService {
   async findAll(paginationQuery: PaginationDTO): Promise<User[]> {
     const { skip, limit } = paginationQuery;
 
-    return this.userModel.find().skip(skip).limit(limit).exec();
+    return this.userModel
+      .find({}, { password: 0, _v: 0 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
   }
 
   async findOne(id: string): Promise<User> {
     try {
-      const user = await this.userModel.findOne({ _id: id }).exec();
+      const user = await this.userModel
+        .findOne({ _id: id }, { password: 0, _v: 0 })
+        .exec();
       if (user) return user;
       throw new NotFoundException('user with ID not found');
     } catch (error) {
@@ -41,6 +47,8 @@ export class UserService {
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    
     const user = await new this.userModel({ ...CreateUserDTO });
     return user.save();
   }
