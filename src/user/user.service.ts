@@ -11,6 +11,7 @@ import { Model } from 'mongoose';
 import { PaginationDTO } from 'src/common/pagination-dto';
 import { CreateUserDTO } from './dto/create-user.dto';
 import * as argon from 'argon2';
+import { UpdateUserDTO } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -31,7 +32,7 @@ export class UserService {
   async findOne(id: string): Promise<User> {
     try {
       const user = await this.userModel
-        .findOne({ _id: id }, { password: 0, _v: 0 })
+        .findOne({ _id: id }, { password: 0, __v: 0 })
         .exec();
       if (user) return user;
       throw new NotFoundException('user with ID not found');
@@ -56,8 +57,30 @@ export class UserService {
     return user.save();
   }
 
+  async updateUser(id: string, updateUser: UpdateUserDTO): Promise<User> {
+    try {
+      const user = await this.userModel
+        .findOneAndUpdate({ _id: id }, { $set: updateUser }, { new: true })
+        .exec();
+      if (!user) {
+        throw new NotFoundException('user with ID not found');
+      }
+      return user;
+    } catch (error) {
+      throw new NotFoundException('user with ID not found');
+    }
+  }
+
   private async existingUser(field: string, value: string): Promise<boolean> {
-    const user = await this.userModel.findOne({ email: value });
+    let user;
+    switch (field) {
+      case 'email':
+        user = await this.userModel.findOne({ email: value });
+        break;
+      default:
+        user = await this.userModel.findOne({ _id: value });
+    }
+
     return user ? true : false;
   }
 }

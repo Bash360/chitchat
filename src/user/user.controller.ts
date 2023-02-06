@@ -14,6 +14,7 @@ import { User } from './models/user.model';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { PaginationDTO } from 'src/common/pagination-dto';
 import { UserService } from './user.service';
+import { UpdateUserDTO } from './dto/update-user.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -38,7 +39,10 @@ export class UserController {
   }
 
   @Patch(':id')
-  async updateUser(@Param('id') id: string): Promise<User> {
-    return new User();
+  async updateUser(
+    @Param('id') id: string,
+    @Body() updateUser: UpdateUserDTO,
+  ): Promise<User> {
+    return this.userService.updateUser(id, updateUser);
   }
 }
