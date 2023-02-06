@@ -10,6 +10,7 @@ import { User } from './models/user.model';
 import { Model } from 'mongoose';
 import { PaginationDTO } from 'src/common/pagination-dto';
 import { CreateUserDTO } from './dto/create-user.dto';
+import * as argon from 'argon2';
 
 @Injectable()
 export class UserService {
@@ -40,21 +41,23 @@ export class UserService {
   }
 
   async createUser(createUser: CreateUserDTO): Promise<User> {
-    const existingUser = this.existingUser('email', createUser.email);
-    if (!existingUser) {
+    const existingUser = await this.existingUser('email', createUser.email);
+    if (existingUser) {
       throw new HttpException(
         'user with this email already exist',
         HttpStatus.BAD_REQUEST,
       );
     }
+    const passwordHash = await argon.hash(createUser.password);
 
-    
-    const user = await new this.userModel({ ...CreateUserDTO });
+    createUser.password = passwordHash;
+
+    const user = await new this.userModel({ ...createUser });
     return user.save();
   }
 
   private async existingUser(field: string, value: string): Promise<boolean> {
-    const user = await this.userModel.findOne({ field: value });
+    const user = await this.userModel.findOne({ email: value });
     return user ? true : false;
   }
 }
