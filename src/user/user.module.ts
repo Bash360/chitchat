@@ -9,5 +9,6 @@ import { user } from 'src/common/constants';
   imports: [MongooseModule.forFeature([{ name: user, schema: UserSchema }])],
   controllers: [UserController],
   providers: [UserService],
+  exports: [UserService],
 })
 export class UserModule {}

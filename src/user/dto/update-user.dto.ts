@@ -1,5 +1,6 @@
-import { PartialType } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { OmitType, PartialType } from '@nestjs/swagger';
 import { CreateUserDTO } from './create-user.dto';
 
-export class UpdateUserDTO extends PartialType(CreateUserDTO) {}
+export class UpdateUserDTO extends PartialType(
+  OmitType(CreateUserDTO, ['email'] as const),
+) {}
