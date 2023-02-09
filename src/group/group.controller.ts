@@ -20,6 +20,7 @@ import { CreateGroupDTO } from './dto/create-group.dto';
 import { UpdateGroupDTO } from './dto/update.group.dto';
 import { throwReadableMessages } from 'src/common/helpers';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Public } from 'src/common/decorators';
 
 @ApiTags('group')
 @Controller('group')
@@ -27,6 +28,7 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Get()
+  @Public()
   @HttpCode(HttpStatus.OK)
   async findAll(@Query() paginationQuery: PaginationDTO): Promise<Group[]> {
     return this.groupService.findAll(paginationQuery);

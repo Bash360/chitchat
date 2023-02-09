@@ -21,6 +21,7 @@ import { UpdateUserDTO } from './dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { throwReadableMessages } from 'src/common/helpers';
 import { IsOptional } from 'class-validator';
+import { Public } from 'src/common/decorators';
 
 @ApiTags('user')
 @Controller('user')
@@ -39,6 +40,7 @@ export class UserController {
   }
 
   @Post('signup')
+  @Public()
   @UseInterceptors(FileInterceptor('avatar'))
   @HttpCode(HttpStatus.CREATED)
   async createUser(
