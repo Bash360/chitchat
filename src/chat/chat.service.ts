@@ -7,6 +7,8 @@ import { PaginationDTO } from 'src/common/pagination-dto';
 import { CreateChatDTO } from './dto/create-chat.dto';
 import { UserService } from 'src/user/user.service';
 import { GroupService } from 'src/group/group.service';
+import { AuthService } from '../auth/auth.service';
+import { getToken } from 'src/common/gettoken';
 
 @Injectable()
 export class ChatService {
@@ -14,6 +16,7 @@ export class ChatService {
     @InjectModel(chat) private readonly chatModel: Model<Chat>,
     private readonly userService: UserService,
     private readonly groupService: GroupService,
+    private readonly authService: AuthService,
   ) {}
 
   async findAll(groupID: string, pagination: PaginationDTO): Promise<Chat[]> {
@@ -26,13 +29,14 @@ export class ChatService {
       .exec();
   }
 
-  async createChat(createChat: CreateChatDTO): Promise<Chat> {
+  async createChat(createChat: CreateChatDTO, auth: string): Promise<Chat> {
+    const payload = await this.authService.extract(getToken(auth));
     const group = await this.groupService.findOne(createChat.groupID);
-    const user = await this.userService.findOne(createChat.sender);
+
     const chat = await new this.chatModel({
       ...createChat,
       groupID: group._id,
-      sender: user._id,
+      sender: payload.id,
     });
     return chat.save();
   }

@@ -10,6 +10,8 @@ import { UpdateUserDTO } from 'src/user/dto/update-user.dto';
 import { UpdateGroupDTO } from './dto/update.group.dto';
 import { FileService } from '../file/file.service';
 import { Express } from 'express';
+import { AuthService } from 'src/auth/auth.service';
+import { getToken } from 'src/common/gettoken';
 
 @Injectable()
 export class GroupService {
@@ -17,6 +19,7 @@ export class GroupService {
     @InjectModel(group) private readonly groupModel: Model<Group>,
     private readonly userService: UserService,
     private readonly fileService: FileService,
+    private readonly authService: AuthService,
   ) {}
   async findAll(paginationQuery: PaginationDTO): Promise<Group[]> {
     const { skip, limit } = paginationQuery;
@@ -37,16 +40,17 @@ export class GroupService {
   }
 
   async createGroup(
-    userId: string,
     createGroup: CreateGroupDTO,
+    auth: string,
     file?: Express.Multer.File,
   ): Promise<Group> {
-    const user = await this.userService.findOne(userId);
-    let result;
+    const payload = await this.authService.extract(getToken(auth));
 
+    let result;
+    console.log(result);
     const group = await new this.groupModel({
       ...createGroup,
-      createdBy: user._id,
+      createdBy: payload.id,
     });
 
     if (file) {

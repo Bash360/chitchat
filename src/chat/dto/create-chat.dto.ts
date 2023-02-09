@@ -8,9 +8,6 @@ export class CreateChatDTO {
   @MaxLength(200)
   text: string;
 
-  @IsString()
-  sender: string;
-
   @IsUrl()
   @IsOptional()
   videoUrl: string;

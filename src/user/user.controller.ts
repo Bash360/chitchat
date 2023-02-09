@@ -11,6 +11,7 @@ import {
   Query,
   UploadedFile,
   UseInterceptors,
+  Headers
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from './models/user.model';
@@ -21,6 +22,8 @@ import { UpdateUserDTO } from './dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { throwReadableMessages } from 'src/common/helpers';
 import { IsOptional } from 'class-validator';
+import { Public } from 'src/common/decorators';
+import { LoginDTO } from './dto/login.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -39,6 +42,7 @@ export class UserController {
   }
 
   @Post('signup')
+  @Public()
   @UseInterceptors(FileInterceptor('avatar'))
   @HttpCode(HttpStatus.CREATED)
   async createUser(
@@ -63,12 +67,19 @@ export class UserController {
     return this.userService.createUser(createUser, file);
   }
 
+  @Post('signin')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  async signIn(@Body() loginDTO: LoginDTO): Promise<any> {
+    return this.userService.validateUser(loginDTO);
+  }
+
   @Patch(':id')
   @UseInterceptors(FileInterceptor('avatar'))
   async updateUser(
-    @Param('id') id: string,
-
-    @Body() updateUser: UpdateUserDTO,
+    @Headers('authorization') auth: string,
+    @Body()
+    updateUser: UpdateUserDTO,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addMaxSizeValidator({ maxSize: 1_000_000 })
@@ -83,6 +94,6 @@ export class UserController {
     )
     file?: Express.Multer.File,
   ): Promise<User> {
-    return this.userService.updateUser(id, updateUser, file);
+    return this.userService.updateUser(auth, updateUser, file);
   }
 }
