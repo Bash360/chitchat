@@ -11,6 +11,7 @@ import {
   UploadedFile,
   ParseFilePipeBuilder,
   UseInterceptors,
+  Headers,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { PaginationDTO } from 'src/common/pagination-dto';
@@ -40,12 +41,12 @@ export class GroupController {
     return this.groupService.findOne(id);
   }
 
-  @Post(':id')
+  @Post()
   @UseInterceptors(FileInterceptor('avatar'))
   @HttpCode(HttpStatus.CREATED)
   async createGroup(
-    @Param('id') id: string,
     @Body() createGroup: CreateGroupDTO,
+    @Headers('authorization') auth: string,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addMaxSizeValidator({ maxSize: 1_000_000 })
@@ -60,7 +61,7 @@ export class GroupController {
     )
     file?: Express.Multer.File,
   ): Promise<Group> {
-    return this.groupService.createGroup(id, createGroup, file);
+    return this.groupService.createGroup(createGroup, auth, file);
   }
 
   @Patch(':id')

@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Param,
@@ -30,8 +31,12 @@ export class ChatController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async createChat(@Body() createChatDTO: CreateChatDTO): Promise<Chat> {
-    return this.chatService.createChat(createChatDTO);
+  async createChat(
+    @Body() createChatDTO: CreateChatDTO,
+    @Headers('authorization')
+    auth: string,
+  ): Promise<Chat> {
+    return this.chatService.createChat(createChatDTO, auth);
   }
 
   @Delete(':id')

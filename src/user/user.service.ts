@@ -1,6 +1,7 @@
 import {
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -13,12 +14,16 @@ import { CreateUserDTO } from './dto/create-user.dto';
 import * as argon from 'argon2';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { FileService } from '../file/file.service';
+import { LoginDTO } from './dto/login.dto';
+import { AuthService } from 'src/auth/auth.service';
+import { getToken } from '../common/gettoken';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(user.toString()) private readonly userModel: Model<User>,
     private readonly fileService: FileService,
+    private readonly authService: AuthService,
   ) {}
 
   async findAll(paginationQuery: PaginationDTO): Promise<User[]> {
@@ -68,14 +73,14 @@ export class UserService {
   }
 
   async updateUser(
-    id: string,
+    auth: string,
 
     updateUser: UpdateUserDTO,
     file?: Express.Multer.File,
   ): Promise<User> {
     try {
       let result;
-
+      const payload = await this.authService.extract(getToken(auth));
       if (updateUser.password) {
         const passwordHash = await argon.hash(updateUser.password);
 
@@ -88,7 +93,7 @@ export class UserService {
 
       const user = await this.userModel
         .findOneAndUpdate(
-          { _id: id },
+          { _id: payload.id },
           { $set: updateUser, avatar: result?.imageURL },
           { new: true },
         )
@@ -100,6 +105,18 @@ export class UserService {
       return user;
     } catch (error) {
       throw new NotFoundException('user with ID not found');
+    }
+  }
+  async validateUser(loginDTO: LoginDTO): Promise<any> {
+    const { email, password } = loginDTO;
+    const user = await this.userModel.findOne({ email: email }).exec();
+    if (user && (await argon.verify(user.password, password))) {
+      return this.authService.login(user);
+    } else {
+      throw new HttpException(
+        'user credentials invalid',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
