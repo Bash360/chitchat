@@ -7,6 +7,7 @@ import { PaginationDTO } from 'src/common/pagination-dto';
 import { UserService } from 'src/user/user.service';
 import { CreateGroupDTO } from './dto/create-group.dto';
 import { UpdateUserDTO } from 'src/user/dto/update-user.dto';
+import { UpdateGroupDTO } from './dto/update.group.dto';
 
 @Injectable()
 export class GroupService {
@@ -45,7 +46,7 @@ export class GroupService {
     return group.save();
   }
 
-  async updateGroup(id: string, updateGroup: UpdateUserDTO): Promise<Group> {
+  async updateGroup(id: string, updateGroup: UpdateGroupDTO): Promise<Group> {
     try {
       const group = await this.groupModel
         .findOneAndUpdate({ _id: id }, { $set: updateGroup }, { new: true })
