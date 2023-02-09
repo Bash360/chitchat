@@ -67,14 +67,36 @@ export class UserService {
     return user.save();
   }
 
-  async updateUser(id: string, updateUser: UpdateUserDTO): Promise<User> {
+  async updateUser(
+    id: string,
+
+    updateUser: UpdateUserDTO,
+    file?: Express.Multer.File,
+  ): Promise<User> {
     try {
+      let result;
+
+      if (updateUser.password) {
+        const passwordHash = await argon.hash(updateUser.password);
+
+        updateUser.password = passwordHash;
+      }
+
+      if (file) {
+        result = await this.fileService.uploadImage(file);
+      }
+
       const user = await this.userModel
-        .findOneAndUpdate({ _id: id }, { $set: updateUser }, { new: true })
+        .findOneAndUpdate(
+          { _id: id },
+          { $set: updateUser, avatar: result?.imageURL },
+          { new: true },
+        )
         .exec();
       if (!user) {
         throw new NotFoundException('user with ID not found');
       }
+
       return user;
     } catch (error) {
       throw new NotFoundException('user with ID not found');

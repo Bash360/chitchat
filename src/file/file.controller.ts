@@ -35,13 +35,15 @@ export class FileController {
         })
         .build({
           exceptionFactory: throwReadableMessages,
+          fileIsRequired: false,
         }),
     )
     file: Express.Multer.File,
+    @Body() body,
   ) {
-    const result = await this.fileService.uploadImage(file);
+    // const result = await this.fileService.uploadImage(file);
 
-    console.log(result);
+    console.log(body);
   }
 
   @Post('chatfiles')

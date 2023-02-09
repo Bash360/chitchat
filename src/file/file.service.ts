@@ -12,7 +12,7 @@ export class FileService {
   private readonly apiKEY = this.config.get<string>('API_KEY');
   private readonly apiSecret = this.config.get<string>('API_SECRET');
   constructor(private readonly config: ConfigService) {}
-  async uploadImage(file: Express.Multer.File): Promise<{}> {
+  async uploadImage(file: Express.Multer.File): Promise<{ imageURL }> {
     cloudinary.v2.config({
       cloud_name: this.cloudName,
       api_key: this.apiKEY,

@@ -20,6 +20,7 @@ import { UserService } from './user.service';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { throwReadableMessages } from 'src/common/helpers';
+import { IsOptional } from 'class-validator';
 
 @ApiTags('user')
 @Controller('user')
@@ -41,6 +42,9 @@ export class UserController {
   @UseInterceptors(FileInterceptor('avatar'))
   @HttpCode(HttpStatus.CREATED)
   async createUser(
+    @Body()
+    createUser: CreateUserDTO,
+
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addMaxSizeValidator({ maxSize: 1_000_000 })
@@ -50,20 +54,35 @@ export class UserController {
         })
         .build({
           exceptionFactory: throwReadableMessages,
+          fileIsRequired: false,
         }),
     )
-    file: Express.Multer.File,
-    @Body()
-    createUser: CreateUserDTO,
+    file?: Express.Multer.File,
   ): Promise<User> {
+    console.log('okay');
     return this.userService.createUser(createUser, file);
   }
 
   @Patch(':id')
+  @UseInterceptors(FileInterceptor('avatar'))
   async updateUser(
     @Param('id') id: string,
+
     @Body() updateUser: UpdateUserDTO,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addMaxSizeValidator({ maxSize: 1_000_000 })
+        .addFileTypeValidator({
+          fileType:
+            /(^image)(\/)[jpeg,jpg,png,x\-png,bmp,gif,avif,webp,svg+xml]*/i,
+        })
+        .build({
+          exceptionFactory: throwReadableMessages,
+          fileIsRequired: false,
+        }),
+    )
+    file?: Express.Multer.File,
   ): Promise<User> {
-    return this.userService.updateUser(id, updateUser);
+    return this.userService.updateUser(id, updateUser, file);
   }
 }
