@@ -12,7 +12,7 @@ async function bootstrap() {
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
   );
 
-  const options = new DocumentBuilder()
+  const options = new DocumentBuilder().addBearerAuth()
     .setTitle('chitchat')
     .setDescription('chitchat API')
     .setVersion('1.0')
