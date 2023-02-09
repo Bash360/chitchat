@@ -12,8 +12,4 @@ export class CreateGroupDTO {
   @IsString()
   topic: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  avatar: string;
 }

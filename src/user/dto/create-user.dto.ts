@@ -7,10 +7,7 @@ export class CreateUserDTO {
   @MaxLength(15)
   nickname: string;
 
-  @IsString()
-  @IsOptional()
-  @ApiProperty()
-  avatar: string;
+ 
 
   @IsEmail()
   @ApiProperty()

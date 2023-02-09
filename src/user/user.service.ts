@@ -12,11 +12,13 @@ import { PaginationDTO } from 'src/common/pagination-dto';
 import { CreateUserDTO } from './dto/create-user.dto';
 import * as argon from 'argon2';
 import { UpdateUserDTO } from './dto/update-user.dto';
+import { FileService } from '../file/file.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(user.toString()) private readonly userModel: Model<User>,
+    private readonly fileService: FileService,
   ) {}
 
   async findAll(paginationQuery: PaginationDTO): Promise<User[]> {
@@ -41,7 +43,10 @@ export class UserService {
     }
   }
 
-  async createUser(createUser: CreateUserDTO): Promise<User> {
+  async createUser(
+    createUser: CreateUserDTO,
+    file?: Express.Multer.File,
+  ): Promise<User> {
     const existingUser = await this.existingUser('email', createUser.email);
     if (existingUser) {
       throw new HttpException(
@@ -52,19 +57,46 @@ export class UserService {
     const passwordHash = await argon.hash(createUser.password);
 
     createUser.password = passwordHash;
-
+    let result;
     const user = await new this.userModel({ ...createUser });
+    if (file) {
+      result = await this.fileService.uploadImage(file);
+      user.avatar = result.imageURL;
+    }
+
     return user.save();
   }
 
-  async updateUser(id: string, updateUser: UpdateUserDTO): Promise<User> {
+  async updateUser(
+    id: string,
+
+    updateUser: UpdateUserDTO,
+    file?: Express.Multer.File,
+  ): Promise<User> {
     try {
+      let result;
+
+      if (updateUser.password) {
+        const passwordHash = await argon.hash(updateUser.password);
+
+        updateUser.password = passwordHash;
+      }
+
+      if (file) {
+        result = await this.fileService.uploadImage(file);
+      }
+
       const user = await this.userModel
-        .findOneAndUpdate({ _id: id }, { $set: updateUser }, { new: true })
+        .findOneAndUpdate(
+          { _id: id },
+          { $set: updateUser, avatar: result?.imageURL },
+          { new: true },
+        )
         .exec();
       if (!user) {
         throw new NotFoundException('user with ID not found');
       }
+
       return user;
     } catch (error) {
       throw new NotFoundException('user with ID not found');
