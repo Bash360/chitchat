@@ -11,11 +11,10 @@ export class User extends Document {
   avatar: string;
   @Prop({ required: true })
   email: string;
-  @Prop({ required: true })
   password: string;
 
   @Prop([String])
-  groupsJoined: string[];
+  roomsJoined: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

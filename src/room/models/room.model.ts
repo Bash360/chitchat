@@ -4,7 +4,7 @@ import { defaultGroupAvatarURI } from '../../common/constants';
 import { User } from 'src/user/models/user.model';
 
 @Schema({ strict: true, timestamps: true })
-export class Group extends mongoose.Document {
+export class Room extends mongoose.Document {
   @Prop({ required: true })
   name: string;
 
@@ -18,4 +18,4 @@ export class Group extends mongoose.Document {
   avatar: string;
 }
 
-export const GroupSchema = SchemaFactory.createForClass(Group);
+export const RoomSchema = SchemaFactory.createForClass(Room);

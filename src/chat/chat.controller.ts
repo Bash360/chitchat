@@ -1,32 +1,28 @@
 import {
-  Body,
   Controller,
   Delete,
   Get,
-  Headers,
   HttpCode,
   HttpStatus,
   Param,
-  Post,
   Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { PaginationDTO } from 'src/common/pagination-dto';
 import { ChatService } from './chat.service';
 import { Chat } from './models/chat.model';
-import { CreateChatDTO } from './dto/create-chat.dto';
 
 @Controller('chat')
 @ApiTags('chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
-  @Get(':groupID')
+  @Get(':roomID')
   @HttpCode(HttpStatus.OK)
   async findAll(
-    @Param('groupID') groupID: string,
+    @Param('roomID') roomID: string,
     @Query() pagination: PaginationDTO,
   ): Promise<Chat[]> {
-    return this.chatService.findAll(groupID, pagination);
+    return this.chatService.findAll(roomID, pagination);
   }
 
   @Delete(':id')

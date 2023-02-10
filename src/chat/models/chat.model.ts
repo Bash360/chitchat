@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { User } from 'src/user/models/user.model';
-import { Group } from 'src/group/models/group.model';
+import { Room } from 'src/room/models/room.model';
 
 @Schema({ strict: true, timestamps: true })
 export class Chat extends mongoose.Document {
@@ -9,7 +9,7 @@ export class Chat extends mongoose.Document {
   sender: User;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Group' })
-  groupID: Group;
+  roomID: Room;
 
   @Prop({ required: true })
   text: string;

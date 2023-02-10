@@ -1,8 +1,7 @@
-import { Optional } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, MaxLength, IsOptional } from 'class-validator';
 
-export class CreateGroupDTO {
+export class CreateRoomDTO {
   @ApiProperty()
   @IsString()
   @MaxLength(15)
@@ -11,5 +10,4 @@ export class CreateGroupDTO {
   @ApiProperty()
   @IsString()
   topic: string;
-
 }

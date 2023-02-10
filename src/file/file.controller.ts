@@ -1,8 +1,6 @@
 import {
-  BadRequestException,
   Body,
   Controller,
-  HttpStatus,
   ParseFilePipeBuilder,
   Post,
   UploadedFile,
