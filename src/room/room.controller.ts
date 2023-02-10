@@ -15,37 +15,37 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { PaginationDTO } from 'src/common/pagination-dto';
-import { GroupService } from './group.service';
-import { Group } from './models/group.model';
-import { CreateGroupDTO } from './dto/create-group.dto';
-import { UpdateGroupDTO } from './dto/update.group.dto';
+import { RoomService } from './room.service';
+import { Room } from './models/room.model';
+import { CreateRoomDTO } from './dto/create-room.dto';
+import { UpdateRoomDTO } from './dto/update.room.dto';
 import { throwReadableMessages } from 'src/common/helpers';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/common/decorators';
 
-@ApiTags('group')
-@Controller('group')
-export class GroupController {
-  constructor(private readonly groupService: GroupService) {}
+@ApiTags('room')
+@Controller('room')
+export class RoomController {
+  constructor(private readonly roomService: RoomService) {}
 
   @Get()
   @Public()
   @HttpCode(HttpStatus.OK)
-  async findAll(@Query() paginationQuery: PaginationDTO): Promise<Group[]> {
-    return this.groupService.findAll(paginationQuery);
+  async findAll(@Query() paginationQuery: PaginationDTO): Promise<Room[]> {
+    return this.roomService.findAll(paginationQuery);
   }
 
   @Get(':id')
   @HttpCode(HttpStatus.FOUND)
-  async findOne(@Param('id') id: string): Promise<Group> {
-    return this.groupService.findOne(id);
+  async findOne(@Param('id') id: string): Promise<Room> {
+    return this.roomService.findOne(id);
   }
 
   @Post()
   @UseInterceptors(FileInterceptor('avatar'))
   @HttpCode(HttpStatus.CREATED)
-  async createGroup(
-    @Body() createGroup: CreateGroupDTO,
+  async createRoom(
+    @Body() createRoom: CreateRoomDTO,
     @Headers('authorization') auth: string,
     @UploadedFile(
       new ParseFilePipeBuilder()
@@ -60,16 +60,16 @@ export class GroupController {
         }),
     )
     file?: Express.Multer.File,
-  ): Promise<Group> {
-    return this.groupService.createGroup(createGroup, auth, file);
+  ): Promise<Room> {
+    return this.roomService.createRoom(createRoom, auth, file);
   }
 
   @Patch(':id')
   @UseInterceptors(FileInterceptor('avatar'))
   @HttpCode(HttpStatus.OK)
-  async UpdateGroup(
+  async UpdateRoom(
     @Param('id') id: string,
-    @Body() updateGroup: UpdateGroupDTO,
+    @Body() updateRoom: UpdateRoomDTO,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addMaxSizeValidator({ maxSize: 1_000_000 })
@@ -83,7 +83,7 @@ export class GroupController {
         }),
     )
     file?: Express.Multer.File,
-  ): Promise<Group> {
-    return this.groupService.updateGroup(id, updateGroup, file);
+  ): Promise<Room> {
+    return this.roomService.updateRoom(id, updateRoom, file);
   }
 }

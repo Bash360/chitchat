@@ -1,7 +1,6 @@
 import {
   HttpException,
   HttpStatus,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -17,6 +16,7 @@ import { FileService } from '../file/file.service';
 import { LoginDTO } from './dto/login.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { getToken } from '../common/gettoken';
+import { Room } from 'src/room/models/room.model';
 
 @Injectable()
 export class UserService {
@@ -118,6 +118,23 @@ export class UserService {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  async joinRoom(user: User, room: Room): Promise<User> {
+    const alreadyJoined = user.roomsJoined.includes(room.name.toLowerCase());
+    if (alreadyJoined) return user;
+    
+    const updatedUser = await this.userModel
+      .findOneAndUpdate(
+        { _id: user.id },
+        { $push: { roomsJoined: room.name } },
+        { new: true },
+      )
+      .exec();
+    if (!updatedUser) {
+      throw new NotFoundException('user with ID not found');
+    }
+    return updatedUser;
   }
 
   private async existingUser(field: string, value: string): Promise<boolean> {

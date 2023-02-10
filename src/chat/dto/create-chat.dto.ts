@@ -1,21 +1,27 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString, IsUrl, MaxLength } from 'class-validator';
 
 export class CreateChatDTO {
+  @ApiProperty()
   @IsString()
-  groupID: string;
+  roomName: string;
 
+  @ApiProperty()
   @IsString()
-  @MaxLength(200)
+  @MaxLength(500)
   text: string;
 
+  @ApiProperty()
   @IsUrl()
   @IsOptional()
   videoUrl: string;
 
+  @ApiProperty()
   @IsUrl()
   @IsOptional()
   imageUrl: string;
 
+  @ApiProperty()
   @IsUrl()
   @IsOptional()
   documentUrl: string;

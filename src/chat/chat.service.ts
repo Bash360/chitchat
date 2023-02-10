@@ -1,42 +1,46 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { chat } from 'src/common/constants';
 import { Chat } from './models/chat.model';
 import { Model } from 'mongoose';
 import { PaginationDTO } from 'src/common/pagination-dto';
-import { CreateChatDTO } from './dto/create-chat.dto';
-import { UserService } from 'src/user/user.service';
-import { GroupService } from 'src/group/group.service';
+import { RoomService } from 'src/room/room.service';
 import { AuthService } from '../auth/auth.service';
 import { getToken } from 'src/common/gettoken';
+import { Socket } from 'socket.io';
+import { WsException } from '@nestjs/websockets';
+import { JwtStrategy } from 'src/auth/jwt.strategy';
+import { User } from 'src/user/models/user.model';
+import { CreateChatDTO } from './dto/create-chat.dto';
 
 @Injectable()
 export class ChatService {
   constructor(
     @InjectModel(chat) private readonly chatModel: Model<Chat>,
-    private readonly userService: UserService,
-    private readonly groupService: GroupService,
+    private readonly roomService: RoomService,
     private readonly authService: AuthService,
+    private readonly jwtStrategy: JwtStrategy,
   ) {}
 
-  async findAll(groupID: string, pagination: PaginationDTO): Promise<Chat[]> {
-    const { skip, limit } = pagination;
+  async findAll(groupID: string, pagination?: PaginationDTO): Promise<Chat[]> {
     return this.chatModel
       .find({ groupID: groupID })
-      .skip(skip ? skip : 0)
-      .limit(limit ? limit : 10)
+      .skip(pagination?.skip ? pagination.skip : 0)
+      .limit(pagination?.limit ? pagination.limit : 100)
       .sort({ createdAt: -1 })
       .exec();
   }
 
-  async createChat(createChat: CreateChatDTO, auth: string): Promise<Chat> {
-    const payload = await this.authService.extract(getToken(auth));
-    const group = await this.groupService.findOne(createChat.groupID);
-
+  async createChat(createChat: CreateChatDTO, sender: User): Promise<Chat> {
+    const room = await this.roomService.findByName(createChat.roomName);
     const chat = await new this.chatModel({
-      ...createChat,
-      groupID: group._id,
-      sender: payload.id,
+      sender: sender,
+      roomID: room.id,
+      text: createChat.text,
     });
     return chat.save();
   }
@@ -50,5 +54,17 @@ export class ChatService {
     } catch (error) {
       throw new NotFoundException('chat with ID not found');
     }
+  }
+
+  async getUserFromSocket(socket: Socket) {
+    const auth = socket.handshake.headers.authorization;
+    if (!auth) {
+      throw new WsException('Invalid credentials.');
+    }
+    const payload = await this.authService.extract(getToken(auth));
+    const user = await this.jwtStrategy.validate(payload);
+    if (!user) throw new WsException('Invalid credentials.');
+    delete user.roomsJoined;
+    return user;
   }
 }
