@@ -123,7 +123,7 @@ export class UserService {
   async joinRoom(user: User, room: Room): Promise<User> {
     const alreadyJoined = user.roomsJoined.includes(room.name.toLowerCase());
     if (alreadyJoined) return user;
-    
+
     const updatedUser = await this.userModel
       .findOneAndUpdate(
         { _id: user.id },
