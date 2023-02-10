@@ -17,12 +17,17 @@ Mark Bashir
 - <https://github.com/Bash360/chitchat>
 
 # Documentation
-- <>
 
-# HOSTED API
+- <https://chitchat-molo.onrender.com/docs>
 
-- <>
+# API Base URL
 
+- <https://chitchat-molo.onrender.com/api/v1>
+
+
+# Cloud Serviced used
+
+- Render
 # STACKS USED
 
 - typescript
@@ -32,6 +37,7 @@ Mark Bashir
 - cloudinary
 - mailgun
 
+
 # HOW TO Run locally
 
 - open your terminal or cmd
@@ -39,6 +45,6 @@ Mark Bashir
 - run npm install to install dependencies
 - run docker compose up -d  (install docker if not already installed)
 - run npm run start to start application it listens on port 3000
-- visit <http://localhost:3000> on API client check documentation
+- visit <http://localhost:3000/docs> on API client check documentation
 
 
