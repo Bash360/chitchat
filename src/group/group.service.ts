@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadGatewayException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { group } from 'src/common/constants';
 import { Group } from './models/group.model';
@@ -44,10 +48,15 @@ export class GroupService {
     auth: string,
     file?: Express.Multer.File,
   ): Promise<Group> {
+    const groupExist = await this.groupModel.findOne({
+      name: createGroup.name,
+    });
+    if (groupExist) {
+      throw new BadGatewayException('group with that name already exist');
+    }
     const payload = await this.authService.extract(getToken(auth));
-
     let result;
-    console.log(result);
+
     const group = await new this.groupModel({
       ...createGroup,
       createdBy: payload.id,
