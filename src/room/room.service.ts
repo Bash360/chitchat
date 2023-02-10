@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { group } from 'src/common/constants';
+import { room } from 'src/common/constants';
 import { Room } from './models/room.model';
 import { Model } from 'mongoose';
 import { PaginationDTO } from 'src/common/pagination-dto';
@@ -17,7 +17,7 @@ import { getToken } from 'src/common/gettoken';
 @Injectable()
 export class RoomService {
   constructor(
-    @InjectModel(group) private readonly roomModel: Model<Room>,
+    @InjectModel(room) private readonly roomModel: Model<Room>,
     private readonly fileService: FileService,
     private readonly authService: AuthService,
   ) {}

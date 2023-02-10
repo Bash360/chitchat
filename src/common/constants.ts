@@ -4,5 +4,5 @@ export const defaultAvatarURI =
 export const defaultGroupAvatarURI =
   'https://res.cloudinary.com/bash360/image/upload/v1675712449/default-group-avatar_uvecdp.png';
 export const user = 'user';
-export const group = 'group';
+export const room = 'room';
 export const chat = 'chat';
