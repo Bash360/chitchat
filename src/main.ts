@@ -7,12 +7,14 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn'],
   });
+  app.enableCors({ origin: '*', methods: 'GET,HEAD,PATCH,POST,DELETE' });
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
   );
 
-  const options = new DocumentBuilder().addBearerAuth()
+  const options = new DocumentBuilder()
+    .addBearerAuth()
     .setTitle('chitchat')
     .setDescription('chitchat API')
     .setVersion('1.0')
