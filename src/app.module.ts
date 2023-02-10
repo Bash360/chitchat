@@ -6,6 +6,7 @@ import { GroupModule } from './group/group.module';
 import { ChatModule } from './chat/chat.module';
 import { FileModule } from './file/file.module';
 import { AuthModule } from './auth/auth.module';
+import { EventsModule } from './events/events.module';
 
 
 @Module({
@@ -17,6 +18,7 @@ import { AuthModule } from './auth/auth.module';
     ChatModule,
     FileModule,
     AuthModule,
+    EventsModule,
   ],
   controllers: [],
   providers: [],

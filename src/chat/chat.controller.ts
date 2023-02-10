@@ -29,16 +29,6 @@ export class ChatController {
     return this.chatService.findAll(groupID, pagination);
   }
 
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  async createChat(
-    @Body() createChatDTO: CreateChatDTO,
-    @Headers('authorization')
-    auth: string,
-  ): Promise<Chat> {
-    return this.chatService.createChat(createChatDTO, auth);
-  }
-
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   async deleteChat(@Param('id') id: string): Promise<Chat> {

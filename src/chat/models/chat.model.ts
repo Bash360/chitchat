@@ -5,7 +5,7 @@ import { Group } from 'src/group/models/group.model';
 
 @Schema({ strict: true, timestamps: true })
 export class Chat extends mongoose.Document {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' })
+  @Prop({ type: User, required: true, ref: 'User' })
   sender: User;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Group' })

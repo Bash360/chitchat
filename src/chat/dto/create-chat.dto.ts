@@ -2,11 +2,14 @@ import { IsOptional, IsString, IsUrl, MaxLength } from 'class-validator';
 
 export class CreateChatDTO {
   @IsString()
-  groupID: string;
+  groupName: string;
 
   @IsString()
-  @MaxLength(200)
+  @MaxLength(500)
   text: string;
+
+  @IsString()
+  sender: string;
 
   @IsUrl()
   @IsOptional()

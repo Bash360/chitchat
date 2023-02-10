@@ -17,5 +17,6 @@ import { AuthModule } from 'src/auth/auth.module';
   ],
   controllers: [ChatController],
   providers: [ChatService],
+  exports: [ChatService],
 })
 export class ChatModule {}

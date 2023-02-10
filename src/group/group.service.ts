@@ -42,6 +42,17 @@ export class GroupService {
       throw new NotFoundException('group with that ID not found');
     }
   }
+  async findByName(name: string): Promise<Group> {
+    try {
+      const group = await this.groupModel
+        .findOne({ name: name }, { __v: 0 })
+        .exec();
+      if (group) return group;
+      throw new NotFoundException('group with that name not found');
+    } catch (error) {
+      throw new NotFoundException('group with that name not found');
+    }
+  }
 
   async createGroup(
     createGroup: CreateGroupDTO,

@@ -1,7 +1,6 @@
 import {
   HttpException,
   HttpStatus,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -17,6 +16,7 @@ import { FileService } from '../file/file.service';
 import { LoginDTO } from './dto/login.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { getToken } from '../common/gettoken';
+
 
 @Injectable()
 export class UserService {
@@ -120,6 +120,7 @@ export class UserService {
     }
   }
 
+ 
   private async existingUser(field: string, value: string): Promise<boolean> {
     let user;
     switch (field) {
