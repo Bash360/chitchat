@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { RoomController } from './room.controller';
 import { RoomService } from './room.service';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -13,7 +13,7 @@ import { AuthModule } from 'src/auth/auth.module';
     MongooseModule.forFeature([{ name: group, schema: RoomSchema }]),
     UserModule,
     FileModule,
-    AuthModule,
+    AuthModule
   ],
   controllers: [RoomController],
   providers: [RoomService],

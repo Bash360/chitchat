@@ -8,7 +8,6 @@ import { group } from 'src/common/constants';
 import { Room } from './models/room.model';
 import { Model } from 'mongoose';
 import { PaginationDTO } from 'src/common/pagination-dto';
-import { UserService } from 'src/user/user.service';
 import { CreateRoomDTO } from './dto/create-room.dto';
 import { UpdateRoomDTO } from './dto/update.room.dto';
 import { FileService } from '../file/file.service';
@@ -19,7 +18,6 @@ import { getToken } from 'src/common/gettoken';
 export class RoomService {
   constructor(
     @InjectModel(group) private readonly roomModel: Model<Room>,
-    private readonly userService: UserService,
     private readonly fileService: FileService,
     private readonly authService: AuthService,
   ) {}
@@ -55,6 +53,7 @@ export class RoomService {
     auth: string,
     file?: Express.Multer.File,
   ): Promise<Room> {
+    createRoom.name = createRoom.name.toLowerCase();
     const roomExist = await this.roomModel.findOne({
       name: createRoom.name.toLowerCase(),
     });

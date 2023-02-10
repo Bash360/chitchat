@@ -64,6 +64,7 @@ export class ChatService {
     const payload = await this.authService.extract(getToken(auth));
     const user = await this.jwtStrategy.validate(payload);
     if (!user) throw new WsException('Invalid credentials.');
+    delete user.roomsJoined;
     return user;
   }
 }
