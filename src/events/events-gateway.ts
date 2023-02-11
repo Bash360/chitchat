@@ -38,6 +38,9 @@ export class EventsGateway implements OnGatewayConnection {
   async handleConnection(socket: Socket) {
     // await this.chatService.getUserFromSocket(socket);
   }
+  afterInit(socket: Socket) {
+    console.log(socket);
+  }
 
   // @UsePipes(new ValidationPipe())
   // @UseGuards(JwtAuthGuard)
