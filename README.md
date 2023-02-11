@@ -18,11 +18,11 @@ Mark Bashir
 
 # Documentation
 
-- <https://chitchat-molo.onrender.com/docs>
+- <https://chitchat-0vhe.onrender.com/docs>
 
 # API Base URL
 
-- <https://chitchat-molo.onrender.com/api/v1>
+- <https://chitchat-0vhe.onrender.com/api/v1>
 
 
 # Cloud Serviced used
