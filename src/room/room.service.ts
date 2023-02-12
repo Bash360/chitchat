@@ -13,6 +13,8 @@ import { UpdateRoomDTO } from './dto/update.room.dto';
 import { FileService } from '../file/file.service';
 import { AuthService } from 'src/auth/auth.service';
 import { getToken } from 'src/common/gettoken';
+import { BadRequestException } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class RoomService {
@@ -37,14 +39,13 @@ export class RoomService {
     }
   }
   async findByName(name: string): Promise<Room> {
-    try {
-      const room = await this.roomModel
-        .findOne({ name: name.toLowerCase() }, { __v: 0 })
-        .exec();
-      if (room) return room;
-      throw new NotFoundException('Room with that name not found');
-    } catch (error) {
-      throw new NotFoundException('Room with that name not found');
+    const room = await this.roomModel
+      .findOne({ name: name.toLowerCase() }, { __v: 0 })
+      .exec();
+    if (room) return room;
+
+    if (!room) {
+      throw new WsException('room with that name does not exist');
     }
   }
 
@@ -58,7 +59,7 @@ export class RoomService {
       name: createRoom.name.toLowerCase(),
     });
     if (roomExist) {
-      throw new BadGatewayException('Room with that name already exist');
+      throw new BadRequestException('Room with that name already exist');
     }
     const payload = await this.authService.extract(getToken(auth));
     let result;
@@ -78,7 +79,7 @@ export class RoomService {
 
   async updateRoom(
     id: string,
-    updateGroup: UpdateRoomDTO,
+    updateRoom: UpdateRoomDTO,
     file?: Express.Multer.File,
   ): Promise<Room> {
     try {
@@ -89,7 +90,7 @@ export class RoomService {
       const group = await this.roomModel
         .findOneAndUpdate(
           { _id: id },
-          { $set: updateGroup, avatar: result?.imageURL },
+          { $set: updateRoom, avatar: result?.imageURL },
           { new: true },
         )
         .exec();

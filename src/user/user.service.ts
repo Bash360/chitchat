@@ -39,7 +39,7 @@ export class UserService {
   async findOne(id: string): Promise<User> {
     try {
       const user = await this.userModel
-        .findOne({ _id: id }, { password: 0, __v: 0 })
+        .findOne({ _id: id }, { __v: 0, password: 0 })
         .exec();
       if (user) return user;
       throw new NotFoundException('user with ID not found');
@@ -118,23 +118,6 @@ export class UserService {
         HttpStatus.BAD_REQUEST,
       );
     }
-  }
-
-  async joinRoom(user: User, room: Room): Promise<User> {
-    const alreadyJoined = user.roomsJoined.includes(room.name.toLowerCase());
-    if (alreadyJoined) return user;
-
-    const updatedUser = await this.userModel
-      .findOneAndUpdate(
-        { _id: user.id },
-        { $push: { roomsJoined: room.name } },
-        { new: true },
-      )
-      .exec();
-    if (!updatedUser) {
-      throw new NotFoundException('user with ID not found');
-    }
-    return updatedUser;
   }
 
   private async existingUser(field: string, value: string): Promise<boolean> {

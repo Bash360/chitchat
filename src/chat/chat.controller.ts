@@ -12,8 +12,8 @@ import { PaginationDTO } from 'src/common/pagination-dto';
 import { ChatService } from './chat.service';
 import { Chat } from './models/chat.model';
 
-@Controller('chat')
-@ApiTags('chat')
+@Controller('chats')
+@ApiTags('chats')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
   @Get(':roomID')

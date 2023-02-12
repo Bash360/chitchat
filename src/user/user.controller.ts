@@ -25,8 +25,8 @@ import { IsOptional } from 'class-validator';
 import { Public } from 'src/common/decorators';
 import { LoginDTO } from './dto/login.dto';
 
-@ApiTags('user')
-@Controller('user')
+@ApiTags('users')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
