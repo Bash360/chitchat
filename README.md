@@ -24,7 +24,7 @@ Mark Bashir
 
 - <https://chitchat-0vhe.onrender.com/api/v1>
 
-# Websockets endpoint
+# Websockets URL
 
 - <wss://chitchat-0vhe.onrender.com>
 
