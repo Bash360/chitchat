@@ -101,6 +101,9 @@ export class EventsGateway implements OnGatewayConnection {
     @MessageBody('roomName') roomName: string,
   ) {
     try {
+      if (!socket.rooms.has(roomName.toLowerCase())) {
+        socket.emit('alreadyJoined', 'you are already part of the group');
+      }
       const room = await this.roomService.findByName(roomName);
 
       const user = await this.chatService.getUserFromSocket(socket);
