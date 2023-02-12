@@ -14,8 +14,6 @@ import { Server, Socket } from 'socket.io';
 
 import { ChatService } from 'src/chat/chat.service';
 import { CreateChatDTO } from 'src/chat/dto/create-chat.dto';
-import { Chat } from 'src/chat/models/chat.model';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserService } from '../user/user.service';
 import { RoomService } from '../room/room.service';
 @ApiTags('chatting')
@@ -34,27 +32,48 @@ export class EventsGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
-  // @UseGuards(JwtAuthGuard)
   async handleConnection(socket: Socket) {
-    // await this.chatService.getUserFromSocket(socket);
+    try {
+      await this.chatService.getUserFromSocket(socket);
+    } catch (error) {
+      socket._error(error);
+      return;
+    }
   }
   afterInit(socket: Socket) {
-    console.log(socket);
+    console.log('Gate way connection established :events GATEWAY');
   }
+  async handleDisconnect(socket: Socket) {
+    const user = await this.chatService.getUserFromSocket(socket);
 
+    socket._cleanup();
+
+    socket.broadcast.emit('leftRoom', user);
+  }
   // @UsePipes(new ValidationPipe())
-  // @UseGuards(JwtAuthGuard)
   @SubscribeMessage('createChat')
   async handleMessages(
     @MessageBody() data: CreateChatDTO,
     @ConnectedSocket() socket: Socket,
-  ): Promise<Chat> {
-    const sender = await this.chatService.getUserFromSocket(socket);
+  ) {
+    try {
+      const sender = await this.chatService.getUserFromSocket(socket);
 
-    const chat = await this.chatService.createChat(data, sender);
-    socket.to(data.roomName).emit('receiveChat', chat);
+      const chat = await this.chatService.createChat(data, sender);
+      if (!socket.rooms.has(data.roomName.toLowerCase())) {
+        throw new WsException('you have to join room first');
+      }
 
-    return chat;
+      socket.data = { message: 'successful', status: 201 };
+      delete chat.sender;
+      socket.to(data.roomName).emit('receiveChat', { ...chat, sender: sender });
+
+      return;
+    } catch (error) {
+      console.log(error);
+      socket._error(error);
+      return;
+    }
   }
 
   @SubscribeMessage('requestAllChats')
@@ -62,9 +81,18 @@ export class EventsGateway implements OnGatewayConnection {
     @ConnectedSocket() socket: Socket,
     @MessageBody('id') roomId: string,
   ) {
-    await this.chatService.getUserFromSocket(socket);
-    const chats = await this.chatService.findAll(roomId);
-    socket.emit('receiveAllChats', chats);
+    try {
+      await this.chatService.getUserFromSocket(socket);
+      const room = await this.roomService.findOne(roomId);
+      if (!socket.rooms.has(room.name.toLowerCase())) {
+        throw new WsException('you have to join room first');
+      }
+      const chats = await this.chatService.findAll(roomId);
+      socket.emit('receiveAllChats', chats);
+    } catch (error) {
+      socket._error(error);
+      return;
+    }
   }
 
   @SubscribeMessage('joinRoom')
@@ -72,12 +100,17 @@ export class EventsGateway implements OnGatewayConnection {
     @ConnectedSocket() socket: Socket,
     @MessageBody('roomName') roomName: string,
   ) {
-    const room = await this.roomService.findByName(roomName);
-    const user = await this.chatService.getUserFromSocket(socket);
+    try {
+      const room = await this.roomService.findByName(roomName);
 
-    this.userService.joinRoom(user, room);
-    socket.join(roomName);
-    socket.to(room.name).emit('welcomeNewUser', user);
+      const user = await this.chatService.getUserFromSocket(socket);
+
+      socket.join(roomName);
+      socket.to(room.name).emit('welcomeNewUser', user);
+    } catch (error) {
+      socket._error(error);
+      return;
+    }
   }
 
   @SubscribeMessage('createdRoom')
@@ -85,10 +118,20 @@ export class EventsGateway implements OnGatewayConnection {
     @ConnectedSocket() socket: Socket,
     @MessageBody('name') name: string,
   ) {
-    const existingRoom = await this.roomService.findOne(name);
-    const existingUser = await this.chatService.getUserFromSocket(socket);
-    this.userService.joinRoom(existingUser, existingRoom);
-    socket.join(existingRoom.name);
-    socket.broadcast.emit('newRoom', existingRoom);
+    try {
+      const existingRoom = await this.roomService.findOne(name);
+
+      socket.join(existingRoom.name);
+      socket.broadcast.emit('newRoom', existingRoom);
+    } catch (error) {
+      socket._error(error);
+      return;
+    }
+  }
+
+  @SubscribeMessage('roomsJoined')
+  async allRoomsJoinedByuser(@ConnectedSocket() socket: Socket) {
+    const rooms = socket.rooms;
+    socket.emit('userCurrentRooms', rooms);
   }
 }

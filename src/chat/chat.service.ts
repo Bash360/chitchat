@@ -37,11 +37,15 @@ export class ChatService {
 
   async createChat(createChat: CreateChatDTO, sender: User): Promise<Chat> {
     const room = await this.roomService.findByName(createChat.roomName);
+    if (!room) {
+      throw new WsException('room with the name does');
+    }
     const chat = await new this.chatModel({
-      sender: sender,
+      sender: sender.id,
       roomID: room.id,
       text: createChat.text,
     });
+
     return chat.save();
   }
 
@@ -59,12 +63,12 @@ export class ChatService {
   async getUserFromSocket(socket: Socket) {
     const auth = socket.handshake.headers.authorization;
     if (!auth) {
-      throw new WsException('Invalid credentials.');
+      throw new WsException('Invalid credentials you need to log in');
     }
     const payload = await this.authService.extract(getToken(auth));
     const user = await this.jwtStrategy.validate(payload);
-    if (!user) throw new WsException('Invalid credentials.');
-    delete user.roomsJoined;
+    if (!user) throw new WsException('Invalid credentials you need to log in');
+
     return user;
   }
 }

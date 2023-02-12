@@ -23,8 +23,8 @@ import { throwReadableMessages } from 'src/common/helpers';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/common/decorators';
 
-@ApiTags('room')
-@Controller('room')
+@ApiTags('rooms')
+@Controller('rooms')
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
