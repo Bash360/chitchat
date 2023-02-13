@@ -1,6 +1,4 @@
 import {
-  UseFilters,
-  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -20,6 +18,7 @@ import { ChatService } from 'src/chat/chat.service';
 import { CreateChatDTO } from 'src/chat/dto/create-chat.dto';
 import { UserService } from '../user/user.service';
 import { RoomService } from '../room/room.service';
+import { SendImageDTO } from 'src/chat/dto/send-image-dto';
 
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 @WebSocketGateway({
@@ -56,9 +55,8 @@ export class EventsGateway implements OnGatewayConnection {
     socket.broadcast.emit('leftRoom', user);
   }
 
-  // @UseFilters(new WsExceptionFilter({}))
   @SubscribeMessage('createChat')
-  async handleMessages(
+  async handleTextMessages(
     @MessageBody() data: CreateChatDTO,
     @ConnectedSocket() socket: Socket,
   ) {
@@ -76,12 +74,14 @@ export class EventsGateway implements OnGatewayConnection {
 
       return;
     } catch (error) {
-      console.log('from pipe',error);
+      console.log('from pipe', error);
       socket._error(error);
       return;
     }
   }
 
+  @SubscribeMessage('createImage')
+    async handleImageChat(socket:Socket, @MessageBody()sendImage:SendImageDTO){}
   @SubscribeMessage('requestAllChats')
   async getAllMessagesFromGroup(
     @ConnectedSocket() socket: Socket,
