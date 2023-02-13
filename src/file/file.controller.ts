@@ -13,8 +13,8 @@ import { throwReadableMessages } from 'src/common/helpers';
 
 @Controller('file')
 export class FileController {
-  constructor(private readonly fileService: FileService) {}
-  @Public()
+  constructor(private readonly fileService: FileService) { }
+  
   @UseInterceptors(FileInterceptor('image'))
   @Post('image')
   async uploadImage(
@@ -34,7 +34,7 @@ export class FileController {
     return this.fileService.uploadImage(file);
   }
 
-  @Public()
+
   @UseInterceptors(FileInterceptor('video'))
   @Post('video')
   uploadVideo(
@@ -53,7 +53,7 @@ export class FileController {
     return this.fileService.uploadVideo(file);
   }
 
-  @Public()
+
   @UseInterceptors(FileInterceptor('document'))
   @Post('document')
   uploadDocument(
