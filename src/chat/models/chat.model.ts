@@ -11,7 +11,7 @@ export class Chat extends mongoose.Document {
   @Prop({ type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Group' })
   roomID: Room;
 
-  @Prop({ required: true })
+  @Prop()
   text: string;
 
   @Prop()

@@ -1,7 +1,4 @@
-import {
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
+import { UsePipes, ValidationPipe } from '@nestjs/common';
 
 import {
   ConnectedSocket,
@@ -18,7 +15,6 @@ import { ChatService } from 'src/chat/chat.service';
 import { CreateChatDTO } from 'src/chat/dto/create-chat.dto';
 import { UserService } from '../user/user.service';
 import { RoomService } from '../room/room.service';
-import { SendImageDTO } from 'src/chat/dto/send-image-dto';
 
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 @WebSocketGateway({
@@ -55,12 +51,14 @@ export class EventsGateway implements OnGatewayConnection {
     socket.broadcast.emit('leftRoom', user);
   }
 
+
   @SubscribeMessage('createChat')
-  async handleTextMessages(
+  async handleMessages(
     @MessageBody() data: CreateChatDTO,
     @ConnectedSocket() socket: Socket,
   ) {
     try {
+      if(!data.text && !data.imageUrl && !data.videoUrl && !data.documentUrl) throw new WsException('chat cannot be empty');
       const sender = await this.chatService.getUserFromSocket(socket);
 
       const chat = await this.chatService.createChat(data, sender);
@@ -80,8 +78,6 @@ export class EventsGateway implements OnGatewayConnection {
     }
   }
 
-  @SubscribeMessage('createImage')
-    async handleImageChat(socket:Socket, @MessageBody()sendImage:SendImageDTO){}
   @SubscribeMessage('requestAllChats')
   async getAllMessagesFromGroup(
     @ConnectedSocket() socket: Socket,
