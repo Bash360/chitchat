@@ -39,7 +39,7 @@ export class FileService {
       this.extractContent(file),
       { folder: 'chichat/video' },
     );
-    return { documentURL: result.secure_url };
+    return { videoURL: result.secure_url };
   }
 
   private extractContent(file: Express.Multer.File): string {

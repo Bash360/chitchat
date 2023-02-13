@@ -10,4 +10,5 @@ export class CreateRoomDTO {
   @ApiProperty()
   @IsString()
   topic: string;
+
 }

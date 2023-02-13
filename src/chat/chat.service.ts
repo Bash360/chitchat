@@ -43,7 +43,10 @@ export class ChatService {
     const chat = await new this.chatModel({
       sender: sender.id,
       roomID: room.id,
-      text: createChat.text,
+      text: createChat?.text,
+      imageUrl: createChat?.imageUrl,
+      videoUrl: createChat?.videoUrl,
+      documentUrl: createChat?.documentUrl,
     });
 
     return chat.save();

@@ -1,5 +1,5 @@
-import { UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { UsePipes, ValidationPipe } from '@nestjs/common';
+
 import {
   ConnectedSocket,
   MessageBody,
@@ -8,7 +8,6 @@ import {
   WebSocketGateway,
   WebSocketServer,
   WsException,
-  WsResponse,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
@@ -16,7 +15,8 @@ import { ChatService } from 'src/chat/chat.service';
 import { CreateChatDTO } from 'src/chat/dto/create-chat.dto';
 import { UserService } from '../user/user.service';
 import { RoomService } from '../room/room.service';
-@ApiTags('chatting')
+
+@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 @WebSocketGateway({
   cors: {
     origin: '*',
@@ -50,13 +50,15 @@ export class EventsGateway implements OnGatewayConnection {
 
     socket.broadcast.emit('leftRoom', user);
   }
-  // @UsePipes(new ValidationPipe())
+
+
   @SubscribeMessage('createChat')
   async handleMessages(
     @MessageBody() data: CreateChatDTO,
     @ConnectedSocket() socket: Socket,
   ) {
     try {
+      if(!data.text && !data.imageUrl && !data.videoUrl && !data.documentUrl) throw new WsException('chat cannot be empty');
       const sender = await this.chatService.getUserFromSocket(socket);
 
       const chat = await this.chatService.createChat(data, sender);
@@ -70,7 +72,7 @@ export class EventsGateway implements OnGatewayConnection {
 
       return;
     } catch (error) {
-      console.log(error);
+      console.log('from pipe', error);
       socket._error(error);
       return;
     }
@@ -101,6 +103,9 @@ export class EventsGateway implements OnGatewayConnection {
     @MessageBody('roomName') roomName: string,
   ) {
     try {
+      if (!socket.rooms.has(roomName.toLowerCase())) {
+        socket.emit('alreadyJoined', 'you are already part of the group');
+      }
       const room = await this.roomService.findByName(roomName);
 
       const user = await this.chatService.getUserFromSocket(socket);
