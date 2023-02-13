@@ -11,5 +11,4 @@ export class CreateRoomDTO {
   @IsString()
   topic: string;
 
-  
 }
