@@ -52,6 +52,6 @@ Mark Bashir
 - run npm install to install dependencies
 - run docker compose up -d  (install docker if not already installed)
 - run npm run start to start application it listens on port 3000
-- visit <http://localhost:3000/docs> on API client check documentation
+
 
 
