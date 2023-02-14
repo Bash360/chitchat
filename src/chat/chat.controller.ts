@@ -25,9 +25,5 @@ export class ChatController {
     return this.chatService.findAll(roomID, pagination);
   }
 
-  @Delete(':id')
-  @HttpCode(HttpStatus.OK)
-  async deleteChat(@Param('id') id: string): Promise<Chat> {
-    return this.chatService.deleteChat(id);
-  }
+
 }
