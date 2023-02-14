@@ -92,7 +92,7 @@ export class EventsGateway implements OnGatewayConnection {
   @SubscribeMessage('requestAllChats')
   async getAllMessagesFromRoom(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: { id: string },
+    @MessageBody('id') id: string,
   ) {
     try {
       const limit = getParam('limit', socket.request.url);
@@ -100,11 +100,11 @@ export class EventsGateway implements OnGatewayConnection {
 
       await this.chatService.getUserFromSocket(socket);
 
-      const room = await this.roomService.findOne(data.id);
+      const room = await this.roomService.findOne(id);
       if (!socket.rooms.has(room.name.toLowerCase())) {
         throw new WsException('you have to join room first');
       }
-      const chats = await this.chatService.findAll(data.id, { limit, skip });
+      const chats = await this.chatService.findAll(id, { limit, skip });
       socket.emit('receiveAllChats', chats);
     } catch (error) {
       socket._error(error);

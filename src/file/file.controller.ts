@@ -7,7 +7,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileService } from './file.service';
-import { Public } from 'src/common/decorators';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { throwReadableMessages } from 'src/common/helpers';
 

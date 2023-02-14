@@ -13,7 +13,7 @@ import {
   UseInterceptors,
   Headers
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+
 import { User } from './models/user.model';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { PaginationDTO } from 'src/common/pagination-dto';
@@ -21,11 +21,10 @@ import { UserService } from './user.service';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { throwReadableMessages } from 'src/common/helpers';
-import { IsOptional } from 'class-validator';
 import { Public } from 'src/common/decorators';
 import { LoginDTO } from './dto/login.dto';
 
-@ApiTags('users')
+
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
