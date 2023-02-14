@@ -24,7 +24,7 @@ export const validationError = (error: ValidationError[]) => {
     const errors = error.map((error) => {
       return error.constraints[Object.keys(error.constraints)[0]];
     });
-    throw new WsException(errors.toString());
+    return errors;
   }
 };
 

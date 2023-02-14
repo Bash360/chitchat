@@ -14,16 +14,15 @@ import { Server, Socket } from 'socket.io';
 import { ChatService } from 'src/chat/chat.service';
 import { CreateChatDTO } from 'src/chat/dto/create-chat.dto';
 import { RoomService } from '../room/room.service';
-import { PaginationDTO } from '../common/pagination-dto';
 import { getParam, validationError } from 'src/common/helpers';
 
-@UsePipes(
-  new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    exceptionFactory: validationError,
-  }),
-)
+// @UsePipes(
+//   new ValidationPipe({
+//     whitelist: true,
+//     forbidNonWhitelisted: true,
+//     exceptionFactory: validationError,
+//   }),
+// )
 @WebSocketGateway({
   cors: {
     origin: '*',
@@ -58,7 +57,14 @@ export class EventsGateway implements OnGatewayConnection {
 
   @SubscribeMessage('createChat')
   async handleMessages(
-    @MessageBody() data: CreateChatDTO,
+    @MessageBody(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        exceptionFactory: validationError,
+      }),
+    )
+    data: CreateChatDTO,
     @ConnectedSocket() socket: Socket,
   ) {
     try {
