@@ -27,6 +27,11 @@ export class FileService {
   }
 
   async uploadDocument(file: Express.Multer.File): Promise<{}> {
+    cloudinary.v2.config({
+      cloud_name: this.cloudName,
+      api_key: this.apiKEY,
+      api_secret: this.apiSecret,
+    });
     const result = await cloudinary.v2.uploader.upload(
       this.extractContent(file),
       { folder: 'chichat/documents' },
@@ -35,6 +40,11 @@ export class FileService {
   }
 
   async uploadVideo(file: Express.Multer.File): Promise<{}> {
+    cloudinary.v2.config({
+      cloud_name: this.cloudName,
+      api_key: this.apiKEY,
+      api_secret: this.apiSecret,
+    });
     const result = await cloudinary.v2.uploader.upload(
       this.extractContent(file),
       { folder: 'chichat/video' },
