@@ -17,6 +17,8 @@ export const throwReadableMessages = (error) => {
   if (error.includes('size')) {
     throw new BadRequestException('file too large max size is 1MB');
   }
+
+  throw new BadRequestException(error);
 };
 
 export const validationError = (error: ValidationError[]) => {
