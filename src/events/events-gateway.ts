@@ -13,10 +13,16 @@ import { Server, Socket } from 'socket.io';
 
 import { ChatService } from 'src/chat/chat.service';
 import { CreateChatDTO } from 'src/chat/dto/create-chat.dto';
-import { UserService } from '../user/user.service';
 import { RoomService } from '../room/room.service';
+import { getParam, validationError } from 'src/common/helpers';
 
-@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+// @UsePipes(
+//   new ValidationPipe({
+//     whitelist: true,
+//     forbidNonWhitelisted: true,
+//     exceptionFactory: validationError,
+//   }),
+// )
 @WebSocketGateway({
   cors: {
     origin: '*',
@@ -25,7 +31,6 @@ import { RoomService } from '../room/room.service';
 export class EventsGateway implements OnGatewayConnection {
   constructor(
     private readonly chatService: ChatService,
-    private readonly userService: UserService,
     private readonly roomService: RoomService,
   ) {}
 
@@ -45,20 +50,26 @@ export class EventsGateway implements OnGatewayConnection {
   }
   async handleDisconnect(socket: Socket) {
     const user = await this.chatService.getUserFromSocket(socket);
-
     socket._cleanup();
 
     socket.broadcast.emit('leftRoom', user);
   }
 
-
   @SubscribeMessage('createChat')
   async handleMessages(
-    @MessageBody() data: CreateChatDTO,
+    @MessageBody(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        exceptionFactory: validationError,
+      }),
+    )
+    data: CreateChatDTO,
     @ConnectedSocket() socket: Socket,
   ) {
     try {
-      if(!data.text && !data.imageUrl && !data.videoUrl && !data.documentUrl) throw new WsException('chat cannot be empty');
+      if (!data.text && !data.imageUrl && !data.videoUrl && !data.documentUrl)
+        throw new WsException('chat cannot be empty');
       const sender = await this.chatService.getUserFromSocket(socket);
 
       const chat = await this.chatService.createChat(data, sender);
@@ -79,17 +90,21 @@ export class EventsGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage('requestAllChats')
-  async getAllMessagesFromGroup(
+  async getAllMessagesFromRoom(
     @ConnectedSocket() socket: Socket,
-    @MessageBody('id') roomId: string,
+    @MessageBody('id') id: string,
   ) {
     try {
+      const limit = getParam('limit', socket.request.url);
+      const skip = getParam('skip', socket.request.url);
+
       await this.chatService.getUserFromSocket(socket);
-      const room = await this.roomService.findOne(roomId);
+
+      const room = await this.roomService.findOne(id);
       if (!socket.rooms.has(room.name.toLowerCase())) {
         throw new WsException('you have to join room first');
       }
-      const chats = await this.chatService.findAll(roomId);
+      const chats = await this.chatService.findAll(id, { limit, skip });
       socket.emit('receiveAllChats', chats);
     } catch (error) {
       socket._error(error);

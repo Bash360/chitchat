@@ -13,7 +13,6 @@ import {
   UseInterceptors,
   Headers,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
 import { PaginationDTO } from 'src/common/pagination-dto';
 import { RoomService } from './room.service';
 import { Room } from './models/room.model';
@@ -23,7 +22,7 @@ import { throwReadableMessages } from 'src/common/helpers';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/common/decorators';
 
-@ApiTags('rooms')
+
 @Controller('rooms')
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
