@@ -16,9 +16,9 @@ Mark Bashir
 
 - <https://github.com/Bash360/chitchat>
 
-# Documentation
+# API Documentation
 
-- <https://chitchat-0vhe.onrender.com/docs>
+- <https://documenter.getpostman.com/view/7290073/2s935vn1XG>
 
 # API Base URL
 
@@ -27,6 +27,10 @@ Mark Bashir
 # Websockets URL
 
 - <wss://chitchat-0vhe.onrender.com>
+
+# Websockets Documentation
+
+- <>
 
 # Cloud Serviced used
 
