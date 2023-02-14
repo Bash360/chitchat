@@ -10,7 +10,7 @@ import { FileService } from './file.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { throwReadableMessages } from 'src/common/helpers';
 
-@Controller('file')
+@Controller('files')
 export class FileController {
   constructor(private readonly fileService: FileService) { }
   
