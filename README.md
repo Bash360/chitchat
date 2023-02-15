@@ -30,7 +30,7 @@ Mark Bashir
 
 # Websockets Documentation
 
-- <>
+- <https://www.postman.com/enigma360/workspace/public/collection/63eb895941a5da2973e8d78a>
 
 # Cloud Serviced used
 
