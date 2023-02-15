@@ -16,13 +16,13 @@ import { CreateChatDTO } from 'src/chat/dto/create-chat.dto';
 import { RoomService } from '../room/room.service';
 import { getParam, validationError } from 'src/common/helpers';
 
-// @UsePipes(
-//   new ValidationPipe({
-//     whitelist: true,
-//     forbidNonWhitelisted: true,
-//     exceptionFactory: validationError,
-//   }),
-// )
+@UsePipes(
+  new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    exceptionFactory: validationError,
+  }),
+)
 @WebSocketGateway({
   cors: {
     origin: '*',
@@ -57,13 +57,7 @@ export class EventsGateway implements OnGatewayConnection {
 
   @SubscribeMessage('createChat')
   async handleMessages(
-    @MessageBody(
-      new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        exceptionFactory: validationError,
-      }),
-    )
+    @MessageBody()
     data: CreateChatDTO,
     @ConnectedSocket() socket: Socket,
   ) {
@@ -127,6 +121,7 @@ export class EventsGateway implements OnGatewayConnection {
 
       socket.join(roomName);
       socket.to(room.name).emit('welcomeNewUser', user);
+      return { status: 'successful' };
     } catch (error) {
       socket._error(error);
       return;

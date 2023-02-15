@@ -16,9 +16,9 @@ Mark Bashir
 
 - <https://github.com/Bash360/chitchat>
 
-# Documentation
+# API Documentation
 
-- <https://chitchat-0vhe.onrender.com/docs>
+- <https://documenter.getpostman.com/view/7290073/2s935vn1XG>
 
 # API Base URL
 
@@ -27,6 +27,10 @@ Mark Bashir
 # Websockets URL
 
 - <wss://chitchat-0vhe.onrender.com>
+
+# Websockets Documentation
+
+- <https://www.postman.com/enigma360/workspace/public/collection/63eb895941a5da2973e8d78a>
 
 # Cloud Serviced used
 
@@ -48,6 +52,6 @@ Mark Bashir
 - run npm install to install dependencies
 - run docker compose up -d  (install docker if not already installed)
 - run npm run start to start application it listens on port 3000
-- visit <http://localhost:3000/docs> on API client check documentation
+
 
 
