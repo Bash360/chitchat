@@ -40,12 +40,14 @@ export class EventsGateway implements OnGatewayConnection {
   async handleConnection(socket: Socket) {
     try {
       await this.chatService.getUserFromSocket(socket);
+
+      socket.recovered;
     } catch (error) {
       socket._error(error);
       return;
     }
   }
-  afterInit(socket: Socket) {
+  afterInit() {
     console.log('Gate way connection established :events GATEWAY');
   }
   async handleDisconnect(socket: Socket) {
@@ -73,7 +75,9 @@ export class EventsGateway implements OnGatewayConnection {
 
       socket.data = { message: 'successful', status: 201 };
       delete chat.sender;
-      socket.to(data.roomName).emit('receiveChat', { ...chat, sender: sender });
+      socket
+        .to(data.roomName.toLowerCase())
+        .emit('receiveChat', { ...chat, sender: sender });
 
       return;
     } catch (error) {
@@ -112,14 +116,14 @@ export class EventsGateway implements OnGatewayConnection {
     @MessageBody('roomName') roomName: string,
   ) {
     try {
-      if (!socket.rooms.has(roomName.toLowerCase())) {
-        socket.emit('alreadyJoined', 'you are already part of the group');
+      if (socket.rooms.has(roomName.toLowerCase())) {
+        throw new WsException('you are already part of the group');
       }
       const room = await this.roomService.findByName(roomName);
 
       const user = await this.chatService.getUserFromSocket(socket);
 
-      socket.join(roomName);
+      socket.join(room.name);
       socket.to(room.name).emit('welcomeNewUser', user);
       return { status: 'successful' };
     } catch (error) {
@@ -148,5 +152,25 @@ export class EventsGateway implements OnGatewayConnection {
   async allRoomsJoinedByuser(@ConnectedSocket() socket: Socket) {
     const rooms = socket.rooms;
     socket.emit('userCurrentRooms', rooms);
+  }
+
+  @SubscribeMessage('closeChat')
+  async closeChat(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody('roomName') roomName: string,
+  ) {
+    try {
+      const sender = await this.chatService.getUserFromSocket(socket);
+      const room = await this.roomService.findByName(roomName);
+      if (!socket.rooms.has(room.name.toLowerCase())) {
+        throw new WsException('you have to join room first');
+      }
+
+      socket.leave(room.name);
+      socket.to(room.name).emit('leftRoom', { user: sender });
+    } catch (error) {
+      socket._error(error);
+      return;
+    }
   }
 }
