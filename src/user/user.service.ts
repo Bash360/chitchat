@@ -30,12 +30,13 @@ export class UserService {
   ) {}
 
   async findAll(paginationQuery?: PaginationDTO): Promise<User[]> {
-    // const { skip, limit } = paginationQuery;
+    const { skip, limit } = paginationQuery;
 
-    return this.userModel.find({}, { password: 0, _v: 0 }).exec();
-    // .skip()
-    // .limit()
-    // .exec();
+    return this.userModel
+      .find({ verified: true }, { password: 0, _v: 0 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
   }
 
   async findOne(id: string): Promise<User> {
@@ -217,5 +218,21 @@ export class UserService {
     const token = await this.authService.verify(user._id);
     this.sendEmail(user.email, user.nickname, token.access_token);
     return true;
+  }
+
+  async isOnline(id: string, isOnline: boolean): Promise<any> {
+    try {
+      await this.userModel
+        .findOneAndUpdate(
+          { _id: id },
+          { $set: { online: isOnline } },
+          { new: true },
+        )
+        .exec();
+
+      return { message: 'updated' };
+    } catch (error) {
+      throw new NotFoundException(error);
+    }
   }
 }
