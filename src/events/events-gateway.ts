@@ -15,6 +15,7 @@ import { ChatService } from 'src/chat/chat.service';
 import { CreateChatDTO } from 'src/chat/dto/create-chat.dto';
 import { RoomService } from '../room/room.service';
 import { getParam, validationError } from 'src/common/helpers';
+import { UserService } from 'src/user/user.service';
 
 @UsePipes(
   new ValidationPipe({
@@ -32,6 +33,7 @@ export class EventsGateway implements OnGatewayConnection {
   constructor(
     private readonly chatService: ChatService,
     private readonly roomService: RoomService,
+    private readonly userService: UserService,
   ) {}
 
   @WebSocketServer()
@@ -39,7 +41,8 @@ export class EventsGateway implements OnGatewayConnection {
 
   async handleConnection(socket: Socket) {
     try {
-      await this.chatService.getUserFromSocket(socket);
+      const user = await this.chatService.getUserFromSocket(socket);
+      this.userService.isOnline(user._id, true);
 
       socket.recovered;
     } catch (error) {
@@ -52,6 +55,7 @@ export class EventsGateway implements OnGatewayConnection {
   }
   async handleDisconnect(socket: Socket) {
     const user = await this.chatService.getUserFromSocket(socket);
+    this.userService.isOnline(user._id, false);
     socket._cleanup();
 
     socket.broadcast.emit('leftRoom', user);

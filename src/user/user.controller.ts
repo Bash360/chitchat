@@ -11,7 +11,7 @@ import {
   Query,
   UploadedFile,
   UseInterceptors,
-  Headers
+  Headers,
 } from '@nestjs/common';
 
 import { User } from './models/user.model';
@@ -24,7 +24,6 @@ import { throwReadableMessages } from 'src/common/helpers';
 import { Public } from 'src/common/decorators';
 import { LoginDTO } from './dto/login.dto';
 
-
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -33,11 +32,6 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   async findAll(@Query() paginationDTO: PaginationDTO): Promise<User[]> {
     return this.userService.findAll(paginationDTO);
-  }
-
-  @Get(':id')
-  async findOne(@Param('id') id: string): Promise<User> {
-    return this.userService.findOne(id);
   }
 
   @Post('signup')
@@ -94,5 +88,24 @@ export class UserController {
     file?: Express.Multer.File,
   ): Promise<User> {
     return this.userService.updateUser(auth, updateUser, file);
+  }
+
+  @Get('verify')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  async verifyUser(@Query('token') token: string): Promise<any> {
+    return this.userService.verifyUser(token);
+  }
+
+  @Get('confirmemail/:email')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  async confirmMail(@Param('email') email: string): Promise<any> {
+    return this.userService.sendVerification(email);
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<User> {
+    return this.userService.findOne(id);
   }
 }

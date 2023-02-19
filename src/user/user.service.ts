@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -16,7 +17,8 @@ import { FileService } from '../file/file.service';
 import { LoginDTO } from './dto/login.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { getToken } from '../common/gettoken';
-import { Room } from 'src/room/models/room.model';
+import { ConfigService } from '@nestjs/config';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class UserService {
@@ -24,13 +26,14 @@ export class UserService {
     @InjectModel(user.toString()) private readonly userModel: Model<User>,
     private readonly fileService: FileService,
     private readonly authService: AuthService,
+    private readonly config: ConfigService,
   ) {}
 
-  async findAll(paginationQuery: PaginationDTO): Promise<User[]> {
+  async findAll(paginationQuery?: PaginationDTO): Promise<User[]> {
     const { skip, limit } = paginationQuery;
 
     return this.userModel
-      .find({}, { password: 0, _v: 0 })
+      .find({ verified: true }, { password: 0, _v: 0 })
       .skip(skip)
       .limit(limit)
       .exec();
@@ -39,7 +42,7 @@ export class UserService {
   async findOne(id: string): Promise<User> {
     try {
       const user = await this.userModel
-        .findOne({ _id: id }, { __v: 0, password: 0 })
+        .findOne({ _id: id, verified: true }, { __v: 0, password: 0 })
         .exec();
       if (user) return user;
       throw new NotFoundException('user with ID not found');
@@ -69,7 +72,10 @@ export class UserService {
       user.avatar = result.imageURL;
     }
 
-    return user.save();
+    const savedUser = await user.save();
+    const token = await this.authService.verify(savedUser._id);
+    this.sendEmail(savedUser.email, savedUser.nickname, token.access_token);
+    return savedUser;
   }
 
   async updateUser(
@@ -93,7 +99,7 @@ export class UserService {
 
       const user = await this.userModel
         .findOneAndUpdate(
-          { _id: payload.id },
+          { _id: payload.id, verified: true },
           { $set: updateUser, avatar: result?.imageURL },
           { new: true },
         )
@@ -109,7 +115,9 @@ export class UserService {
   }
   async validateUser(loginDTO: LoginDTO): Promise<any> {
     const { email, password } = loginDTO;
-    const user = await this.userModel.findOne({ email: email }).exec();
+    const user = await this.userModel
+      .findOne({ email: email, verified: true })
+      .exec();
     if (user && (await argon.verify(user.password, password))) {
       return this.authService.login(user);
     } else {
@@ -131,5 +139,100 @@ export class UserService {
     }
 
     return user ? true : false;
+  }
+
+  async verifyUser(token: string): Promise<any> {
+    try {
+      const payload = await this.authService.extract(token);
+
+      const user = await this.userModel
+        .findOneAndUpdate(
+          { _id: payload.id },
+          { $set: { verified: true } },
+          { new: true },
+        )
+        .exec();
+      if (!user) {
+        throw new NotFoundException('user with ID not found');
+      }
+
+      return { message: 'email verified can now log in' };
+    } catch (error) {
+      throw new NotFoundException('linked expired');
+    }
+  }
+
+  async sendEmail(email: string, name: string, token: string) {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: this.config.get<string>('EMAIL_USERNAME'),
+        pass: this.config.get<string>('APP_PASSWORD'),
+      },
+    });
+
+    const url = this.getUrl();
+
+    const mailConfigurations = {
+      from: this.config.get<string>('EMAIL_USERNAME'),
+
+      to: email,
+
+      subject: 'Email Verification',
+
+      // This would be the text of email body
+      text: `Hi! ${name}, You have recently visited 
+           our website and entered your email.
+           Please follow the given link to verify your email,
+           link expires in 10 hours 
+           ${url}${token} 
+           Thanks`,
+    };
+
+    transporter.sendMail(mailConfigurations, function (error, info) {
+      if (error) throw Error(error);
+      return true;
+    });
+  }
+
+  private getUrl() {
+    switch (this.config.get<string>('NODE_ENV')) {
+      case 'production':
+        return 'https://chitchat-0vhe.onrender.com/api/v1/users/verify?token=';
+      case 'development':
+        return 'http://localhost:3000/api/v1/users/verify?token=';
+
+      default:
+        throw new Error('no environment defined');
+    }
+  }
+
+  async sendVerification(email: string): Promise<any> {
+    const user = await this.userModel.findOne({ email });
+
+    if (!user) throw new NotFoundException('email does not exist, sign up');
+    if (user.verified) {
+      throw new BadRequestException('user already verified');
+    }
+
+    const token = await this.authService.verify(user._id);
+    this.sendEmail(user.email, user.nickname, token.access_token);
+    return true;
+  }
+
+  async isOnline(id: string, isOnline: boolean): Promise<any> {
+    try {
+      await this.userModel
+        .findOneAndUpdate(
+          { _id: id },
+          { $set: { online: isOnline } },
+          { new: true },
+        )
+        .exec();
+
+      return { message: 'updated' };
+    } catch (error) {
+      throw new NotFoundException(error);
+    }
   }
 }

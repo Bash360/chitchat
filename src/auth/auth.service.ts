@@ -11,6 +11,12 @@ export class AuthService {
     return { access_token: await this.jwtService.signAsync(payLoad) };
   }
 
+  async verify(id: string) {
+    const payLoad = { id };
+
+    return { access_token: await this.jwtService.signAsync(payLoad) };
+  }
+
   async extract(token) {
     return await this.jwtService.verifyAsync(token, {
       secret: process.env.SECRET,
