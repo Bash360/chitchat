@@ -6,12 +6,14 @@ import { UserSchema } from './models/user.model';
 import { user } from 'src/common/constants';
 import { FileModule } from 'src/file/file.module';
 import { AuthModule } from '../auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     AuthModule,
     MongooseModule.forFeature([{ name: user, schema: UserSchema }]),
     FileModule,
+    ConfigModule,
   ],
   controllers: [UserController],
   providers: [UserService],
