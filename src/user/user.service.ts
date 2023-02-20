@@ -174,7 +174,7 @@ export class UserService {
     const url = this.getUrl();
 
     const mailConfigurations = {
-      from: this.config.get<string>('EMAIL_USERNAME'),
+      from: 'admin',
 
       to: email,
 
@@ -182,11 +182,11 @@ export class UserService {
 
       // This would be the text of email body
       text: `Hi! ${name}, You have recently visited 
-           our website and entered your email.
-           Please follow the given link to verify your email,
-           link expires in 10 hours 
-           ${url}${token} 
-           Thanks`,
+             our website and entered your email.
+             Please follow the given link to verify your email,
+             link expires in 10 hours 
+             ${url}${token} 
+             Thanks`,
     };
 
     transporter.sendMail(mailConfigurations, function (error, info) {
