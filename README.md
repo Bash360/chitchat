@@ -42,7 +42,7 @@ Mark Bashir
 - mongodb
 - websockets
 - cloudinary
-- mailgun
+- nodemailer
 
 
 # HOW TO Run locally
