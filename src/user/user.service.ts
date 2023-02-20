@@ -158,7 +158,7 @@ export class UserService {
 
       return { message: 'email verified can now log in' };
     } catch (error) {
-      throw new NotFoundException('invalid token');
+      throw new BadRequestException('invalid token');
     }
   }
 
