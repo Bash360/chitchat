@@ -122,7 +122,7 @@ export class UserService {
       return this.authService.login(user);
     } else {
       throw new HttpException(
-        'user credentials invalid',
+        'user credentials invalid or mail not verified ',
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -145,6 +145,12 @@ export class UserService {
     try {
       const payload = await this.authService.extract(token);
 
+      const keys = Object.keys(payload);
+
+      if (keys.length > 1) {
+        throw new BadRequestException('invalid token');
+      }
+
       const user = await this.userModel
         .findOneAndUpdate(
           { _id: payload.id },
@@ -156,9 +162,11 @@ export class UserService {
         throw new NotFoundException('user with ID not found');
       }
 
+      if (user.verified) throw new BadRequestException('already verified');
+
       return { message: 'email verified can now log in' };
     } catch (error) {
-      throw new NotFoundException('invalid token');
+      throw new BadRequestException('invalid token');
     }
   }
 
